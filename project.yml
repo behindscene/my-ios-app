@@ -4,7 +4,6 @@ options:
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "16"
-
 targets:
   WholesaleConnect:
     type: application
@@ -15,9 +14,9 @@ targets:
       - path: Core
       - path: Features
       - path: Shared
-    resources:
-      - path: Resources/Assets.xcassets
-      - path: Resources/Info.plist
+      - path: Resources
+        type: folder
+        buildPhase: resources
     info:
       path: Resources/Info.plist
     settings:
