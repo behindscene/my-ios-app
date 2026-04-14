@@ -7,6 +7,7 @@ on:
       - '**.swift'
       - '**.plist'
       - '**.xcassets/**'
+      - '**.rar'
       - '.github/workflows/appetize-deploy.yml'
   workflow_dispatch:
 
@@ -21,6 +22,20 @@ jobs:
 
       - name: Select Xcode 16
         run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Extract WholesaleConnect.rar
+        run: |
+          brew install unar
+          unar -o . WholesaleConnect.rar
+          echo "Extracted contents:"
+          ls -la WholesaleConnect/
+          cp -R WholesaleConnect/App ./App
+          cp -R WholesaleConnect/Core ./Core
+          cp -R WholesaleConnect/Features ./Features
+          cp -R WholesaleConnect/Shared ./Shared
+          cp -R WholesaleConnect/Resources ./Resources
+          echo "Source folders ready"
+          ls -la
 
       - name: Generate Xcode project with xcodegen
         run: |
