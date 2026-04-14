@@ -37,20 +37,12 @@ jobs:
 
       - name: Patch source files for Appetize build
         run: |
-          # Fix API URLs
           sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
           sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
-
-          # Fix Hashable conformance
           sed -i '' 's/struct Listing: Codable, Identifiable, Equatable/struct Listing: Codable, Identifiable, Equatable, Hashable/' Core/Models/Listing.swift
           sed -i '' 's/struct Vehicle: Codable, Identifiable, Equatable/struct Vehicle: Codable, Identifiable, Equatable, Hashable/' Core/Models/Vehicle.swift
-
-          # Fix missing UIKit import in NotificationService
           sed -i '' 's/import Foundation/import Foundation\nimport UIKit/' Core/Services/NotificationService.swift
-
-          # Fix GhostButtonStyle via committed Python script (no YAML quoting issues)
           python3 scripts/patch_for_appetize.py
-
           echo "All patches applied"
 
       - name: Generate Xcode project with xcodegen
@@ -108,7 +100,7 @@ jobs:
       - name: Post preview URL to job summary
         run: |
           echo "## iOS Preview Ready" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** `${{ github.ref_name }}`" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** `${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
-          echo "### [Open in Appetize.io](https://appetize.io/app/${{ steps.appetize.outputs.appetize_public_key }})" >> $GITHUB_STEP_SUMMARY
-          echo "**Appetize Public Key:** `${{ steps.appetize.outputs.appetize_public_key }}`" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "Open in Appetize: https://appetize.io/app/${{ steps.appetize.outputs.appetize_public_key }}" >> $GITHUB_STEP_SUMMARY
+          echo "Public Key: ${{ steps.appetize.outputs.appetize_public_key }}" >> $GITHUB_STEP_SUMMARY
