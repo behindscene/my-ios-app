@@ -47,19 +47,17 @@ jobs:
           # Fix missing UIKit import in NotificationService
           sed -i '' 's/import Foundation/import Foundation\nimport UIKit/' Core/Services/NotificationService.swift
 
-          # Fix GhostButtonStyle missing tint parameter (using Python for reliable multiline edit)
-          python3 - <<'EOF'
-          with open('Shared/Theme/ButtonStyles.swift', 'r') as f:
-              c = f.read()
-          c = c.replace(
-              'struct GhostButtonStyle: ButtonStyle {',
-              'struct GhostButtonStyle: ButtonStyle {\n    var tint: Color = .accent'
-          )
-          c = c.replace('.foregroundColor(.accent)', '.foregroundColor(tint)')
-          with open('Shared/Theme/ButtonStyles.swift', 'w') as f:
-              f.write(c)
-          print('GhostButtonStyle patched')
-          EOF
+          # Fix GhostButtonStyle missing tint parameter using python3 -c
+          python3 -c "
+import re
+with open('Shared/Theme/ButtonStyles.swift', 'r') as f:
+    c = f.read()
+c = c.replace('struct GhostButtonStyle: ButtonStyle {', 'struct GhostButtonStyle: ButtonStyle {\\n    var tint: Color = .accent')
+c = c.replace('.foregroundColor(.accent)', '.foregroundColor(tint)')
+with open('Shared/Theme/ButtonStyles.swift', 'w') as f:
+    f.write(c)
+print('GhostButtonStyle patched')
+"
 
           echo "All patches applied"
 
