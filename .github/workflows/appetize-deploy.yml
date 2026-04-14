@@ -9,6 +9,7 @@ on:
       - '**.xcassets/**'
       - '**.rar'
       - '.github/workflows/appetize-deploy.yml'
+      - 'scripts/patch_for_appetize.py'
   workflow_dispatch:
 
 jobs:
@@ -47,9 +48,8 @@ jobs:
           # Fix missing UIKit import in NotificationService
           sed -i '' 's/import Foundation/import Foundation\nimport UIKit/' Core/Services/NotificationService.swift
 
-          # Fix GhostButtonStyle missing tint - use base64 to avoid YAML quoting issues
-          echo d2l0aCBvcGVuKCdTaGFyZWQvVGhlbWUvQnV0dG9uU3R5bGVzLnN3aWZ0JywgJ3InKSBhcyBmOgogICAgYyA9IGYucmVhZCgpCmMgPSBjLnJlcGxhY2UoJ3N0cnVjdCBHaG9zdEJ1dHRvblN0eWxlOiBCdXR0b25TdHlsZSB7JywKICAgICAgICAgICAgICAnc3RydWN0IEdob3N0QnV0dG9uU3R5bGU6IEJ1dHRvblN0eWxlIHsKICAgIHZhciB0aW50OiBDb2xvciA9IC5hY2NlbnQnKQpjID0gYy5yZXBsYWNlKCcuZm9yZWdyb3VuZENvbG9yKC5hY2NlbnQpJywgJy5mb3JlZ3JvdW5kQ29sb3IodGludCknKQp3aXRoIG9wZW4oJ1NoYXJlZC9UaGVtZS9CdXR0b25TdHlsZXMuc3dpZnQnLCAndycpIGFzIGY6CiAgICBmLndyaXRlKGMpCnByaW50KCdHaG9zdEJ1dHRvblN0eWxlIHBhdGNoZWQnKQo= | base64 --decode > /tmp/patch_ghost.py
-          python3 /tmp/patch_ghost.py
+          # Fix GhostButtonStyle via committed Python script (no YAML quoting issues)
+          python3 scripts/patch_for_appetize.py
 
           echo "All patches applied"
 
