@@ -38,8 +38,6 @@ jobs:
         run: |
           sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
           sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
-          echo "Patched AppConfig.swift:"
-          cat App/AppConfig.swift
 
       - name: Generate Xcode project with xcodegen
         run: |
@@ -60,8 +58,15 @@ jobs:
 
       - name: Zip .app for Appetize
         run: |
-          APP_PATH=$(find ./DerivedData -name "WholesaleConnect.app" -not -path "*/Index*" | head -1)
-          echo "Found app at: $APP_PATH"
+          echo "Searching for .app bundles in DerivedData:"
+          find ./DerivedData -name "*.app" -type d | head -20
+          APP_PATH=$(find ./DerivedData -name "*.app" -type d | grep -v ".appex" | grep -v "Index" | head -1)
+          echo "Using app at: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app found. DerivedData contents:"
+            ls -R ./DerivedData/Build/ 2>/dev/null || ls ./DerivedData/
+            exit 1
+          fi
           zip -r WholesaleConnect-Simulator.zip "$APP_PATH"
           ls -lh WholesaleConnect-Simulator.zip
 
