@@ -14,9 +14,8 @@ targets:
       - path: Core
       - path: Features
       - path: Shared
+    resources:
       - path: Resources
-        type: folder
-        buildPhase: resources
     info:
       path: Resources/Info.plist
     settings:
