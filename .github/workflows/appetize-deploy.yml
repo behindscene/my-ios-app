@@ -48,6 +48,9 @@ jobs:
           sed -i '' 's/struct GhostButtonStyle: ButtonStyle {/struct GhostButtonStyle: ButtonStyle {\n    var tint: Color = .accent/' Shared/Theme/ButtonStyles.swift
           sed -i '' 's/.foregroundColor(.accent)/.foregroundColor(tint)/' Shared/Theme/ButtonStyles.swift
 
+          # Fix missing UIKit import in NotificationService
+          sed -i '' 's/import Foundation/import Foundation\nimport UIKit/' Core/Services/NotificationService.swift
+
           echo "All patches applied"
 
       - name: Generate Xcode project with xcodegen
