@@ -36,16 +36,11 @@ jobs:
 
       - name: Patch source files for Appetize build
         run: |
-          # Fix API URL (no localhost in Appetize environment)
           sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
           sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
-          # Add Hashable conformance required by SwiftUI navigationDestination
           sed -i '' 's/struct Listing: Codable, Identifiable, Equatable/struct Listing: Codable, Identifiable, Equatable, Hashable/' Core/Models/Listing.swift
           sed -i '' 's/struct Vehicle: Codable, Identifiable, Equatable/struct Vehicle: Codable, Identifiable, Equatable, Hashable/' Core/Models/Vehicle.swift
-          echo "Patches applied. Verifying:"
-          grep 'struct Listing' Core/Models/Listing.swift
-          grep 'struct Vehicle' Core/Models/Vehicle.swift
-          grep 'URL' App/AppConfig.swift
+          echo "Patches applied"
 
       - name: Generate Xcode project with xcodegen
         run: |
@@ -60,10 +55,10 @@ jobs:
             -scheme WholesaleConnect \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath ./DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            2>&1 | grep -E '^(.*error:|.*warning:|Build succeeded|BUILD FAILED|CompileSwift|Ld )' | tail -50
+            2>&1 | grep -E '(error:|BUILD FAILED|Build succeeded)' | tail -30
 
       - name: Find and zip .app for Appetize
         run: |
