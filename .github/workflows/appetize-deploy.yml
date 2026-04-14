@@ -36,11 +36,19 @@ jobs:
 
       - name: Patch source files for Appetize build
         run: |
+          # Fix API URLs
           sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
           sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
+
+          # Fix Hashable conformance
           sed -i '' 's/struct Listing: Codable, Identifiable, Equatable/struct Listing: Codable, Identifiable, Equatable, Hashable/' Core/Models/Listing.swift
           sed -i '' 's/struct Vehicle: Codable, Identifiable, Equatable/struct Vehicle: Codable, Identifiable, Equatable, Hashable/' Core/Models/Vehicle.swift
-          echo "Patches applied"
+
+          # Fix GhostButtonStyle missing tint parameter
+          sed -i '' 's/struct GhostButtonStyle: ButtonStyle {/struct GhostButtonStyle: ButtonStyle {\n    var tint: Color = .accent/' Shared/Theme/ButtonStyles.swift
+          sed -i '' 's/.foregroundColor(.accent)/.foregroundColor(tint)/' Shared/Theme/ButtonStyles.swift
+
+          echo "All patches applied"
 
       - name: Generate Xcode project with xcodegen
         run: |
