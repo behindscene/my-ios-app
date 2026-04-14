@@ -38,6 +38,8 @@ jobs:
         run: |
           sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
           sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
+          echo "Patched AppConfig.swift:"
+          grep -n 'URL\|WebSocket' App/AppConfig.swift
 
       - name: Generate Xcode project with xcodegen
         run: |
@@ -46,6 +48,7 @@ jobs:
 
       - name: Build for Simulator
         run: |
+          set -o pipefail
           xcodebuild \
             -project WholesaleConnect.xcodeproj \
             -scheme WholesaleConnect \
@@ -53,18 +56,18 @@ jobs:
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath ./DerivedData \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcpretty
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Zip .app for Appetize
+      - name: Find and zip .app for Appetize
         run: |
-          echo "Searching for .app bundles in DerivedData:"
-          find ./DerivedData -name "*.app" -type d | head -20
-          APP_PATH=$(find ./DerivedData -name "*.app" -type d | grep -v ".appex" | grep -v "Index" | head -1)
-          echo "Using app at: $APP_PATH"
+          echo "=== DerivedData Build Products ==="
+          find ./DerivedData -name "*.app" -type d 2>/dev/null || echo "No .app found"
+          echo "=== DerivedData root ==="
+          ls ./DerivedData/
+          APP_PATH=$(find ./DerivedData -name "*.app" -type d | grep -v "\.appex" | head -1)
+          echo "Using: $APP_PATH"
           if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app found. DerivedData contents:"
-            ls -R ./DerivedData/Build/ 2>/dev/null || ls ./DerivedData/
+            echo "ERROR: No .app found in DerivedData"
             exit 1
           fi
           zip -r WholesaleConnect-Simulator.zip "$APP_PATH"
@@ -88,6 +91,7 @@ jobs:
               -F "platform=ios" \
               -F "note=Build ${{ github.sha }}")
           fi
+          echo "Response: $RESPONSE"
           PUBLIC_KEY=$(echo $RESPONSE | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('publicKey',''))")
           echo "appetize_public_key=$PUBLIC_KEY" >> $GITHUB_OUTPUT
           echo "Preview URL: https://appetize.io/app/$PUBLIC_KEY"
