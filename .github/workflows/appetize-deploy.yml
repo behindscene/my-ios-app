@@ -27,15 +27,19 @@ jobs:
         run: |
           brew install unar
           unar -o . WholesaleConnect.rar
-          echo "Extracted contents:"
-          ls -la WholesaleConnect/
           cp -R WholesaleConnect/App ./App
           cp -R WholesaleConnect/Core ./Core
           cp -R WholesaleConnect/Features ./Features
           cp -R WholesaleConnect/Shared ./Shared
           cp -R WholesaleConnect/Resources ./Resources
           echo "Source folders ready"
-          ls -la
+
+      - name: Patch API URL for Appetize (no localhost)
+        run: |
+          sed -i '' 's|http://localhost:3000/api/v1|https://api.wholesaleconnect.co.nz/api/v1|g' App/AppConfig.swift
+          sed -i '' 's|ws://localhost:3000|wss://api.wholesaleconnect.co.nz|g' App/AppConfig.swift
+          echo "Patched AppConfig.swift:"
+          cat App/AppConfig.swift
 
       - name: Generate Xcode project with xcodegen
         run: |
