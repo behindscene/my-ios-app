@@ -44,12 +44,22 @@ jobs:
           sed -i '' 's/struct Listing: Codable, Identifiable, Equatable/struct Listing: Codable, Identifiable, Equatable, Hashable/' Core/Models/Listing.swift
           sed -i '' 's/struct Vehicle: Codable, Identifiable, Equatable/struct Vehicle: Codable, Identifiable, Equatable, Hashable/' Core/Models/Vehicle.swift
 
-          # Fix GhostButtonStyle missing tint parameter
-          sed -i '' 's/struct GhostButtonStyle: ButtonStyle {/struct GhostButtonStyle: ButtonStyle {\n    var tint: Color = .accent/' Shared/Theme/ButtonStyles.swift
-          sed -i '' 's/.foregroundColor(.accent)/.foregroundColor(tint)/' Shared/Theme/ButtonStyles.swift
-
           # Fix missing UIKit import in NotificationService
           sed -i '' 's/import Foundation/import Foundation\nimport UIKit/' Core/Services/NotificationService.swift
+
+          # Fix GhostButtonStyle missing tint parameter (using Python for reliable multiline edit)
+          python3 - <<'EOF'
+          with open('Shared/Theme/ButtonStyles.swift', 'r') as f:
+              c = f.read()
+          c = c.replace(
+              'struct GhostButtonStyle: ButtonStyle {',
+              'struct GhostButtonStyle: ButtonStyle {\n    var tint: Color = .accent'
+          )
+          c = c.replace('.foregroundColor(.accent)', '.foregroundColor(tint)')
+          with open('Shared/Theme/ButtonStyles.swift', 'w') as f:
+              f.write(c)
+          print('GhostButtonStyle patched')
+          EOF
 
           echo "All patches applied"
 
