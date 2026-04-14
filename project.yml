@@ -1,0 +1,31 @@
+name: WholesaleConnect
+options:
+  bundleIdPrefix: com.wholesaleconnect
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16"
+
+targets:
+  WholesaleConnect:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: App
+      - path: Core
+      - path: Features
+      - path: Shared
+    resources:
+      - path: Resources/Assets.xcassets
+      - path: Resources/Info.plist
+    info:
+      path: Resources/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wholesaleconnect.app
+        SWIFT_VERSION: "5.9"
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
