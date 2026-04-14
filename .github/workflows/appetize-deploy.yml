@@ -66,9 +66,7 @@ jobs:
       - name: Find and zip .app for Appetize
         run: |
           APP_PATH=$(find ./DerivedData -name "*.app" -type d | grep -v "\.appex" | head -1)
-          echo "App path: $APP_PATH"
           if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app found"
             find ./DerivedData -type d | head -20
             exit 1
           fi
