@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Patches WholesaleConnect Swift source files for Appetize.io simulator build."""
 import os
 
 def patch(path, old, new):
@@ -26,6 +25,14 @@ patch(
     'Shared/Theme/ButtonStyles.swift',
     '.foregroundColor(.accent)',
     '.foregroundColor(tint)'
+)
+
+# Fix missing UIKit import in NotificationService
+patch(
+    'Core/Services/NotificationService.swift',
+    'import Foundation',
+    'import Foundation
+import UIKit'
 )
 
 print("All patches applied")
