@@ -33,7 +33,6 @@ jobs:
           cp -R WholesaleConnect/Features ./Features
           cp -R WholesaleConnect/Shared ./Shared
           cp -R WholesaleConnect/Resources ./Resources
-          echo Source folders ready
 
       - name: Patch source files for Appetize build
         run: |
@@ -50,7 +49,6 @@ jobs:
 
       - name: Build for Simulator
         run: |
-          set -o pipefail
           xcodebuild \
             -project WholesaleConnect.xcodeproj \
             -scheme WholesaleConnect \
@@ -59,7 +57,12 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath ./DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            2>&1 | grep -E '(error:|BUILD FAILED|Build succeeded)' | tail -30
+            2>&1 | tee build.log | grep -E '(error:|warning:|BUILD FAILED|Build succeeded)' || true
+          if grep -q 'BUILD FAILED' build.log; then
+            echo Build failed - errors:
+            grep 'error:' build.log | head -20
+            exit 1
+          fi
 
       - name: Find and zip .app for Appetize
         run: |
@@ -96,6 +99,4 @@ jobs:
       - name: Post preview URL to job summary
         run: |
           echo iOS Preview Ready >> $GITHUB_STEP_SUMMARY
-          echo Branch ${{ github.ref_name }} >> $GITHUB_STEP_SUMMARY
-          echo Commit ${{ github.sha }} >> $GITHUB_STEP_SUMMARY
           echo https://appetize.io/app/${{ steps.appetize.outputs.appetize_public_key }} >> $GITHUB_STEP_SUMMARY
